@@ -5,7 +5,7 @@
 ## 前置条件
 
 - 一个 GitHub 账号。
-- 一个 Cloudflare 账号，已经绑定付款方式并开通 R2。
+- 一个 Cloudflare 账号（免费计划即可，本项目已用 KV 取代 R2，无需绑定付款方式）。
 - 一个已在 Cloudflare 托管、状态为 **Active（有效）** 的域名。
 
 下文以 `blog.example.com` 为博客域名、`flare-blog` 为 Worker 名称，部署时替换成自己的值即可。建议使用空闲子域名，并在托管域名的 Cloudflare 账号下创建所有资源。
@@ -49,7 +49,7 @@
 | `WORKER_NAME` | `flare-blog` | Worker 应用名称，第 6 步的 Project name 必须与它一致 |
 | `DOMAIN` | `blog.example.com` | 博客的纯域名 |
 | `D1_DATABASE_ID` | 第 4 步复制的 Database ID / UUID | 找到存放文章、用户等数据的数据库 |
-| `BUCKET_NAME` | `blog-media` | 找到存放图片等文件的 R2 存储桶 |
+| `MEDIA_KV_NAMESPACE_ID` | 第 4 步复制的媒体 KV Namespace ID | 找到存放图片与站点资源的 KV 命名空间 |
 | `QUEUE_NAME` | `blog-queue` | 找到处理通知等异步任务的队列 |
 | `KV_NAMESPACE_ID` | 第 4 步复制的 Namespace ID | 找到博客使用的缓存空间 |
 
@@ -105,14 +105,16 @@ Array.from(crypto.getRandomValues(new Uint8Array(32)), (n) =>
 
 ### 4. 创建 Cloudflare 资源
 
-打开 [Cloudflare 控制台](https://dash.cloudflare.com/)，选择托管域名的账号。下面四种资源各创建一个，名称可以自定。
+打开 [Cloudflare 控制台](https://dash.cloudflare.com/)，选择托管域名的账号。下面这几种资源各创建一个，名称可以自定。
+
+> 本项目已用 KV 取代 R2 存放媒体文件，因此**不需要开通 R2**，也就不需要绑定任何付款方式。
 
 | 资源 | 左侧菜单入口 | 示例名称 | 写入构建清单的内容 |
 | --- | --- | --- | --- |
 | D1 数据库 | Storage & databases → D1 SQLite Database | `blog-db` | **ID** → `D1_DATABASE_ID` |
-| R2 存储桶 | Storage & databases → R2 Object Storage | `blog-media` | **名称** → `BUCKET_NAME` |
+| KV 命名空间（缓存） | Storage & databases → Workers KV | `blog-cache` | **ID** → `KV_NAMESPACE_ID` |
+| KV 命名空间（媒体） | Storage & databases → Workers KV | `blog-media` | **ID** → `MEDIA_KV_NAMESPACE_ID` |
 | Queue 队列 | Compute → Queues | `blog-queue` | **名称** → `QUEUE_NAME` |
-| KV 命名空间 | Storage & databases → Workers KV | `blog-cache` | **ID** → `KV_NAMESPACE_ID` |
 
 #### D1：存放文章和用户数据
 
@@ -126,13 +128,13 @@ Array.from(crypto.getRandomValues(new Uint8Array(32)), (n) =>
 
 部署时会自动初始化数据库。
 
-#### R2：存放图片等文件
+#### KV（媒体）：存放图片等文件
 
-进入 **R2 Object Storage**，点击 **Create bucket**，填写名称，例如 `blog-media`。Location 保留 **Automatic**，Default Storage Class 保留 **Standard**，点击页面底部的 **Create bucket**。
+进入 **Storage & databases → Workers KV**，点击 **Create Instance**（部分界面显示为 **Create a namespace**），名称填 `blog-media`。
 
-![R2 存储桶的名称填写示例](./assets/deployment/05-r2.png)
+创建完成后复制该命名空间的 **ID**，填入 `MEDIA_KV_NAMESPACE_ID`。缓存用的那个 KV 同理，填入 `KV_NAMESPACE_ID`。
 
-把存储桶**名称**填入 `BUCKET_NAME`，其余设置保留默认值。
+> 免费额度为每账号 1GB 存储、每天 1000 次写入，对个人博客的图片上传足够用。KV 单个值上限 25MiB，而博客本身限制上传 10MB，不会触碰该上限。
 
 #### Queue：处理通知等异步任务
 
@@ -257,7 +259,7 @@ Array.from(crypto.getRandomValues(new Uint8Array(32)), (n) =>
 打开失败记录的构建日志，先查看具体缺少哪一项，再检查 **Settings → Builds** 中的变量：
 
 - 六个构建必填项是否齐全，名称是否拼写正确，值前后是否混入空格。
-- D1 和 KV 填的是完整 **ID**，R2 和 Queue 填的是**名称**。
+- D1 和 KV 填的是完整 **ID**，Queue 填的是**名称**。
 - Worker 和资源是否位于同一 Cloudflare 账号，`WORKER_NAME` 是否与应用名一致。
 - Build command 是否包含 `bun run wrangler:prepare`，Deploy command 是否为 `bun run deploy`。
 

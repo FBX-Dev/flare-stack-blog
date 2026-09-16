@@ -5,7 +5,7 @@
 # Flare Stack Blog
 
 基于 **Cloudflare 边缘生态**打造的高性能全栈博客与 CMS 系统<br>
-利用 Workers、D1、R2、KV 与 Queues 实现真正的全 Serverless 架构
+利用 Workers、D1、KV 与 Queues 实现真正的全 Serverless 架构
 
 [![License](https://img.shields.io/github/license/du2333/flare-stack-blog?style=flat-square)](https://github.com/du2333/flare-stack-blog/blob/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/du2333/flare-stack-blog?style=flat-square)](https://github.com/du2333/flare-stack-blog/stargazers)
@@ -47,7 +47,7 @@ Flare Stack Blog 是一个深度拥抱 Cloudflare 生态的开源独立博客系
 
 - ⚡ **边缘基础设施**
   - **全 Serverless 存储栈**：以 Cloudflare D1 作为主关系型数据库，KV 承担高频缓存，Durable Objects 负责精准访问限流。
-  - **全球静态资产加速**：媒体文件直存 R2 存储桶，配合 Cloudflare Image Resizing 实现实时图片缩放与格式优化。
+  - **全球静态资产加速**：媒体文件存入 KV 命名空间，配合 Cloudflare Image Resizing 实现实时图片缩放与格式优化。
   - **异步队列事件解耦**：通知邮件发送与 Webhook 派发经由 Cloudflare Queues 异步队列处理，接口响应零阻塞。
 
 - 🛠️ **系统与扩展能力**

@@ -30,17 +30,18 @@
       // "remote": true
     }
   ],
-  "r2_buckets": [
-    {
-      "bucket_name": "bucket-name-placeholder",
-      "binding": "R2",
-      // "remote": true
-    }
-  ],
   "kv_namespaces": [
     {
       "binding": "KV",
       "id": "KV_NAMESPACE_ID",
+      // "remote": true
+    },
+    {
+      // Media + static assets. This replaces the R2 bucket: R2 cannot be
+      // enabled without a payment method, so media lives in KV instead and the
+      // blog stays fully inside the Workers Free plan.
+      "binding": "MEDIA",
+      "id": "MEDIA_KV_NAMESPACE_ID",
       // "remote": true
     }
   ],
@@ -105,11 +106,9 @@
       "kv_namespaces": [
         {
           "binding": "KV"
-        }
-      ],
-      "r2_buckets": [
+        },
         {
-          "binding": "R2"
+          "binding": "MEDIA"
         }
       ],
       "d1_databases": [

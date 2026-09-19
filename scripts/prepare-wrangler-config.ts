@@ -73,20 +73,20 @@ function requireEnv(env: EnvMap, name: string): string {
 }
 
 export function prepareWranglerConfigContent({
+  bucketName,
   d1DatabaseId,
   domain,
   kvNamespaceId,
-  mediaKvNamespaceId,
   mode,
   queueName,
   template,
   workerName,
   zoneNameOverride,
 }: {
+  bucketName: string;
   d1DatabaseId: string;
   domain: string;
   kvNamespaceId: string;
-  mediaKvNamespaceId: string;
   mode: "custom_domain" | "routes";
   queueName: string;
   template: string;
@@ -94,13 +94,10 @@ export function prepareWranglerConfigContent({
   zoneNameOverride?: string;
 }): string {
   const replacements = {
-    // NOTE: MEDIA_KV_NAMESPACE_ID must be substituted before KV_NAMESPACE_ID,
-    // otherwise the shorter key would corrupt the longer placeholder
-    // (MEDIA_KV_NAMESPACE_ID would become MEDIA_<id>).
-    MEDIA_KV_NAMESPACE_ID: mediaKvNamespaceId,
     D1_DATABASE_ID: d1DatabaseId,
     KV_NAMESPACE_ID: kvNamespaceId,
     DOMAIN_PLACEHOLDER: domain,
+    "bucket-name-placeholder": bucketName,
     "queue-name-placeholder": queueName,
     "worker-name-placeholder": workerName,
   };
@@ -123,10 +120,10 @@ export function prepareWranglerConfig(env: EnvMap) {
   const workerName = requireEnv(env, "WORKER_NAME");
   const queueName = requireEnv(env, "QUEUE_NAME");
   const content = prepareWranglerConfigContent({
+    bucketName: requireEnv(env, "BUCKET_NAME"),
     d1DatabaseId: requireEnv(env, "D1_DATABASE_ID"),
     domain,
     kvNamespaceId: requireEnv(env, "KV_NAMESPACE_ID"),
-    mediaKvNamespaceId: requireEnv(env, "MEDIA_KV_NAMESPACE_ID"),
     mode,
     queueName,
     template,

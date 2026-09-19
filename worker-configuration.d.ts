@@ -3,7 +3,7 @@
 // Runtime types generated with workerd@1.20260820.1 2026-02-17 global_fetch_strictly_public,nodejs_compat
 interface __BaseEnv_Env {
 	KV: KVNamespace;
-	MEDIA: KVNamespace;
+	R2: R2Bucket;
 	DB: D1Database;
 	QUEUE: Queue;
 	ENVIRONMENT: string;
@@ -30,7 +30,7 @@ declare namespace Cloudflare {
 	}
 	interface TestEnv {
 		KV: KVNamespace;
-		MEDIA: KVNamespace;
+		R2: R2Bucket;
 		DB: D1Database;
 		QUEUE: Queue;
 		ENVIRONMENT: string;

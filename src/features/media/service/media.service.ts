@@ -280,7 +280,7 @@ export async function handleImageRequest(
   const searchParams = url.searchParams;
 
   const serveOriginal = async () => {
-    const object = await Storage.getFromR2(env, key);
+    const object = await env.R2.get(key);
     if (!object) {
       return new Response("Image not found", { status: 404 });
     }
